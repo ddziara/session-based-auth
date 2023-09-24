@@ -1,4 +1,6 @@
-function login(req, res) {
+const authService = require("../service/auth");
+
+async function login(req, res) {
   const { email, password } = req.body;
 
   // perform payload validation
@@ -8,14 +10,18 @@ function login(req, res) {
     return res.status(400).json("Bad request parsms - you need to provide an email and a password");
   }
 
-  // check if the credentials are correct
-  // ...
+  try {
+    const user = await authService.login(email, password);
 
-  // assume that credentials are correct
-  req.session.clientId = "abc123";
-  req.session.myNum = 5;
-
-  res.json("you are now logged in");
+    req.session.user = user;
+    res.sendStatus(204);
+  }
+  catch(err) {
+    // in prod, do not use console.log or console.error
+    // use a proper loggin library like winston
+    console.error(err);
+    res.status(401).json(err);
+  }
 };
 
 module.exports = {

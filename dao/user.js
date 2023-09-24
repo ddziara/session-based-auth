@@ -20,7 +20,9 @@ const users = {
 // his call would be async and would return a promise
 // if we were to use a real database
 async function findUserByEmail(email) {
-  return users[email];
+  const user = users[email];
+
+  return user ? user : Promise.reject("user not found");
 }
 
 module.exports = { findUserByEmail };
