@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const redis = require("redis");
 const RedisStore = require("connect-redis").default;
+const router = require("./routes");
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use(
     secret: "mySecret",
     saveUninitialized: false,
     resave: false,
+    name: "sessionId",
     cookie: {
       secure: false, // if true: only transmit cookie over https
       httpOnly: true, // if true: prevents client side JS from reading the cookie
@@ -45,45 +47,7 @@ app.use(
 );
 
 // 3, create an unprotected login endpoint
-app.post("/login", (req, res) => {
-  const { email, password } = req;
-
-  // check if the credentials are correct
-  // ...
-
-  // assume that credentials are correct
-  req.session.clientId = "abc123";
-  req.session.myNum = 5;
-
-  res.json("you are now logged in");
-});
-
-// 4. plug in another middleware that will check if the user is authenticated or not
-// all request that are plugged in after this middleware will only be accessible if the user is logged in
-app.use((req, res, next) => {
-  if (!req.session || !req.session.clientId) {
-    const err = new Error("You shall not pass");
-    err.statusCode = 401;
-    next(err);
-  }
-
-  next();
-});
-
-// 5. plug in all routes that the user can only access if logged in
-app.get("/profile", (req, res) => {
-  res.json(req.session);
-});
-
-// Note The following is an example - do not remove it!
-
-// app.get(
-//   "/profile",
-//   (req, res, next /* check if user has sufficient privileges*/) => {},
-//   (req, res) => {
-//     res.json(req.session);
-//   }
-// );
+app.use(router);
 
 app.listen(8080, () => {
   console.log("server is running on port 8080");
