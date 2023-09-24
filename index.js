@@ -1,8 +1,7 @@
 const express = require("express");
-const session = require("express-session");
-const redis = require("redis");
-const RedisStore = require("connect-redis").default;
 const router = require("./routes");
+
+const session = require("./middleware/session");
 
 const app = express();
 
@@ -22,31 +21,10 @@ const app = express();
       in Express matches how the reverse proxy operates.
 */
 
-// 1. configure our redis
-const redisClient = redis.createClient({
-  port: 6379,
-  host: "localhost",
-});
+app.use(express.json());
 
-redisClient.connect().catch(console.error);
+app.use(session);
 
-// 2. configure session middleware
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
-    secret: "mySecret",
-    saveUninitialized: false,
-    resave: false,
-    name: "sessionId",
-    cookie: {
-      secure: false, // if true: only transmit cookie over https
-      httpOnly: true, // if true: prevents client side JS from reading the cookie
-      maxAge: 1000 * 60 * 30, // session max age in miliseconds (30 min)
-    },
-  })
-);
-
-// 3, create an unprotected login endpoint
 app.use(router);
 
 app.listen(8080, () => {
