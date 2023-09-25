@@ -1,7 +1,7 @@
 const express = require("express");
 const router = require("./routes");
-
 const session = require("./middleware/session");
+const corsMw = require("./middleware/cors");
 
 const app = express();
 
@@ -21,7 +21,12 @@ const app = express();
       in Express matches how the reverse proxy operates.
 */
 
+
 app.use(express.json());
+
+// setup CORS logic
+app.options("*", corsMw);            // to handle pre-flighs requests
+app.use(corsMw);                     // simple requests
 
 app.use(session);
 
