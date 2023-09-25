@@ -11,6 +11,8 @@ const corsOptions = {
       callback(new Error("Not allowed by CORS"));
     }
   },
+  credentials: true,   // credentials: Configures the Access-Control-Allow-Credentials CORS header. 
+                       // Set to true to pass the header, otherwise it is omitted.
 };
 
 module.exports = cors(corsOptions);
